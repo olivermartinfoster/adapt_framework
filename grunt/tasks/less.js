@@ -86,7 +86,7 @@ module.exports = function(grunt) {
         'sourceMap': {
           'sourceMapFileInline': false,
           'outputSourceFiles': true,
-          'sourceMapBasepath': 'src',
+          'sourceMapBasepath': '',
           'sourceMapURL': options.mapFilename
         }
       };

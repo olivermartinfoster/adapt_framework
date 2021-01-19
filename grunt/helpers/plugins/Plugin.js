@@ -2,7 +2,7 @@ const globs = require('globs');
 const JSONFile = require('../lib/JSONFile');
 
 /**
- * Represents a single plugin location, bower.json, version, name and schema
+ * Represents a single plugin location, package.json, version, name and schema
  * locations.
    * @todo Should be able to define multiple schemas for all plugins in the AAT
    * and in the Framework
@@ -43,7 +43,7 @@ class Plugin {
     const files = globs.sync(this.packageJSONLocations);
     const firstFile = files[0];
     if (firstFile) {
-      // use the first package definition found (this will be bower.json / package.json)
+      // use the first package definition found (this will be package.json / package.json)
       this.packageJSONFile = new JSONFile({
         path: firstFile
       });
@@ -82,7 +82,7 @@ class Plugin {
    */
   get packageJSONLocations() {
     return [
-      `${this.sourcePath}bower.json`
+      `${this.sourcePath}package.json`
     ];
   }
 

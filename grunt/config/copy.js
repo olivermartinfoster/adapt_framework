@@ -23,171 +23,34 @@ module.exports = function(grunt, options) {
     return collatedFilePath;
   };
 
-  var nonServerTasks = {
-    courseAssets: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= languages %>/**/*', '!**/*.<%= jsonext %>'],
-          cwd: '<%= sourcedir %>course/',
-          dest: '<%= outputdir %>course/'
-        }
-      ]
-    },
-    courseJson: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= languages %>/*.<%= jsonext %>', '*.<%= jsonext %>'],
-          cwd: '<%= sourcedir %>course/',
-          dest: '<%= outputdir %>course/'
-        }
-      ]
-    }
-  };
-
   var mandatoryTasks = {
-    coreAssets: {
+    assets: {
       files: [
         {
           expand: true,
-          src: ['<%= sourcedir %>core/assets/**'],
-          dest: '<%= outputdir %>assets/',
-          rename: _.partial(collate, 'assets')
-        }
-      ]
-    },
-    componentAssets: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>components/**/assets/**'],
-          dest: '<%= outputdir %>assets/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'assets')
-        }
-      ]
-    },
-    componentFonts: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>components/**/fonts/**'],
-          dest: '<%= outputdir %>fonts/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'fonts')
-        }
-      ]
-    },
-    extensionAssets: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>extensions/**/assets/**'],
-          dest: '<%= outputdir %>assets/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'assets')
-        }
-      ]
-    },
-    extensionFonts: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>extensions/**/fonts/**'],
-          dest: '<%= outputdir %>fonts/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'fonts')
-        }
-      ]
-    },
-    menuAssets: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>menu/<%= menu %>/assets/**'],
-          dest: '<%= outputdir %>assets/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'assets')
-        }
-      ]
-    },
-    coreFonts: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>core/fonts/**'],
-          dest: '<%= outputdir %>fonts/',
-          filter: 'isFile',
-          rename: _.partial(collate, 'fonts')
-        }
-      ]
-    },
-    menuFonts: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>menu/<%= menu %>/fonts/**'],
-          dest: '<%= outputdir %>fonts/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'fonts')
-        }
-      ]
-    },
-    themeAssets: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>theme/<%= theme %>/assets/**'],
-          dest: '<%= outputdir %>assets/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'assets')
-        }
-      ]
-    },
-    themeFonts: {
-      files: [
-        {
-          expand: true,
-          src: ['<%= sourcedir %>theme/<%= theme %>/fonts/**'],
-          dest: '<%= outputdir %>fonts/',
-          filter: function(filepath) {
-            return grunt.config('helpers')
-              .includedFilter(filepath);
-          },
-          rename: _.partial(collate, 'fonts')
-        }
-      ]
-    },
-    coreLibraries: {
-      files: [
-        {
-          expand: true,
-          src: ['core/libraries/**/*'],
+          src: ['node_modules/*/assets/**'], // TODO: order ['core/assets/**', 'components/**/assets/**', 'extensions/**/assets/**', 'menu/<%= menu %>/assets/**', 'theme/<%= theme %>/assets/**'],
           cwd: '<%= sourcedir %>',
-          dest: '<%= outputdir %>libraries/',
-          rename: _.partial(collate, 'libraries')
+          dest: '<%= outputdir %>assets/',
+          filter: function(filepath) {
+            return grunt.config('helpers')
+              .includedFilter(filepath);
+          },
+          rename: _.partial(collate, 'assets')
+        }
+      ]
+    },
+    fonts: {
+      files: [
+        {
+          expand: true,
+          src: ['node_modules/*/fonts/**'], // TODO: order ['core/fonts/**', 'components/**/fonts/**', 'extensions/**/fonts/**', 'menu/<%= menu %>/fonts/**', 'theme/<%= theme %>/fonts/**'],
+          cwd: '<%= sourcedir %>',
+          dest: '<%= outputdir %>fonts/',
+          filter: function(filepath) {
+            return grunt.config('helpers')
+              .includedFilter(filepath);
+          },
+          rename: _.partial(collate, 'fonts')
         }
       ]
     },
@@ -195,7 +58,7 @@ module.exports = function(grunt, options) {
       files: [
         {
           expand: true,
-          src: ['components/**/libraries/**/*', 'extensions/**/libraries/**/*', 'menu/<%= menu %>/libraries/**/*', 'theme/<%= theme %>/libraries/**/*'],
+          src: ['node_modules/*/libraries/**'], // TODO: order ['core/libraries/**/*', 'components/**/libraries/**/*', 'extensions/**/libraries/**/*', 'menu/<%= menu %>/libraries/**/*', 'theme/<%= theme %>/libraries/**/*'],
           cwd: '<%= sourcedir %>',
           dest: '<%= outputdir %>libraries/',
           filter: function(filepath) {
@@ -206,22 +69,11 @@ module.exports = function(grunt, options) {
         }
       ]
     },
-    coreRequired: {
-      files: [
-        {
-          expand: true,
-          src: ['core/required/**/*'],
-          cwd: '<%= sourcedir %>',
-          dest: '<%= outputdir %>',
-          rename: _.partial(collate, 'required')
-        }
-      ]
-    },
     required: {
       files: [
         {
           expand: true,
-          src: ['components/**/required/**/*', 'extensions/**/required/**/*', 'menu/<%= menu %>/required/**/*', 'theme/<%= theme %>/required/**/*'],
+          src: ['node_modules/*/required/**'], // TODO: order ['core/required/**/*', 'components/**/required/**/*', 'extensions/**/required/**/*', 'menu/<%= menu %>/required/**/*', 'theme/<%= theme %>/required/**/*'],
           cwd: '<%= sourcedir %>',
           dest: '<%= outputdir %>',
           filter: function(filepath) {
@@ -234,8 +86,6 @@ module.exports = function(grunt, options) {
     }
   };
 
-  if (grunt.option('outputdir')) return mandatoryTasks;
-
-  return _.extend({}, nonServerTasks, mandatoryTasks);
+  return mandatoryTasks;
 
 };

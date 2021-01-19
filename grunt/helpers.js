@@ -178,7 +178,7 @@ module.exports = function(grunt) {
         var plugins = _.intersection(fs.readdirSync(pluginTypeDir), buildIncludes);
         for (var j = 0; j < plugins.length; j++) {
           try {
-            var bowerJson = grunt.file.readJSON(path.join(pluginTypeDir, plugins[j], 'bower.json'));
+            var bowerJson = grunt.file.readJSON(path.join(pluginTypeDir, plugins[j], 'package.json'));
             for (var key in bowerJson.dependencies) {
               if (!_.contains(buildIncludes, key)) dependencies.push(key);
             }
@@ -207,7 +207,7 @@ module.exports = function(grunt) {
       }
 
       // Selectively load the course.json ('outputdir' passed by server-build)
-      var configDir = grunt.option('outputdir') ? outputdir : sourcedir;
+      var configDir = outputdir; //grunt.option('outputdir') ? outputdir : sourcedir;
       // add root path if necessary, and point to course/config.json
 
       var configPath = path.join(path.resolve(root, configDir), 'course', 'config.' + jsonext);
@@ -333,7 +333,7 @@ module.exports = function(grunt) {
     },
 
     /** @returns {Framework} */
-    getFramework: function({ useOutputData = Boolean(grunt.option('outputdir')) } = {}) {
+    getFramework: function({ useOutputData = true } = {}) {
       const buildConfig = exports.generateConfigData();
       const framework = new Framework({
         rootPath: buildConfig.root,

@@ -17,11 +17,7 @@ module.exports = function(grunt) {
       files: [
         {
           src: [
-            '<%= sourcedir %>core/**/*.hbs',
-            '<%= sourcedir %>components/**/*.hbs',
-            '<%= sourcedir %>extensions/**/*.hbs',
-            '<%= sourcedir %>menu/<%= menu %>/**/*.hbs',
-            '<%= sourcedir %>theme/<%= theme %>/**/*.hbs'
+            '<%= sourcedir %>node_modules/**/*.hbs' // TODO: order
           ],
           follow: true,
           dest: '<%= outputdir %>templates.js',

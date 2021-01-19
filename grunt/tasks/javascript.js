@@ -184,57 +184,69 @@ module.exports = function(grunt) {
         name: 'adaptLoader',
 
         resolveId(moduleId, parentId) {
-          const isRollupHelper = (moduleId[0] === '\u0000');
-          if (isRollupHelper) {
-            // Ignore as injected rollup module
-            return null;
-          }
-          const mapPart = mapParts.find(part => moduleId.startsWith(part));
-          if (mapPart) {
-            // Remap module, usually coreJS/adapt to core/js/adapt etc
-            moduleId = moduleId.replace(mapPart, options.map[mapPart]);
-          }
-          const isRelative = (moduleId[0] === '.');
-          if (isRelative) {
-            if (!parentId) {
-              // Rework app.js path so that it can be made basePath agnostic in the cache
-              const filename = findFile(path.resolve(moduleId));
+          const resolve = () => {
+            const isRollupHelper = (moduleId[0] === '\u0000');
+            if (isRollupHelper) {
+              // Ignore as injected rollup module
+              return null;
+            }
+            const mapPart = mapParts.find(part => moduleId.startsWith(part));
+            if (mapPart) {
+              // Remap module, usually coreJS/adapt to core/js/adapt etc
+              moduleId = moduleId.replace(mapPart, options.map[mapPart]);
+            }
+            const isRelative = (moduleId[0] === '.');
+            if (isRelative) {
+              if (!parentId) {
+                // Rework app.js path so that it can be made basePath agnostic in the cache
+                const filename = findFile(path.resolve(moduleId));
+                return {
+                  id: filename,
+                  external: false
+                };
+              }
+              // Rework relative paths into absolute ones
+              const filename = findFile(path.resolve(parentId + '/../' + moduleId));
               return {
                 id: filename,
                 external: false
               };
             }
-            // Rework relative paths into absolute ones
-            const filename = findFile(path.resolve(parentId + '/../' + moduleId));
+            const externalPart = externalParts.find(part => moduleId.startsWith(part));
+            const isEmpty = (options.external[externalPart] === 'empty:');
+            if (isEmpty) {
+              // External module as is defined as 'empty:', libraries/ bower handlebars etc
+              return {
+                id: moduleId,
+                external: true
+              };
+            }
+            const isES6Import = !fs.existsSync(moduleId);
+            if (isES6Import) {
+              // ES6 imports start inside ./src so need correcting
+              const filename = findFile(path.resolve(cwd, options.baseUrl, moduleId));
+              return {
+                id: filename,
+                external: false
+              };
+            }
+            // Normalize all other absolute paths as conflicting slashes will load twice
+            const filename = findFile(path.resolve(cwd, moduleId));
             return {
               id: filename,
               external: false
             };
-          }
-          const externalPart = externalParts.find(part => moduleId.startsWith(part));
-          const isEmpty = (options.external[externalPart] === 'empty:');
-          if (isEmpty) {
-            // External module as is defined as 'empty:', libraries/ bower handlebars etc
-            return {
-              id: moduleId,
-              external: true
-            };
-          }
-          const isES6Import = !fs.existsSync(moduleId);
-          if (isES6Import) {
-            // ES6 imports start inside ./src so need correcting
-            const filename = findFile(path.resolve(cwd, options.baseUrl, moduleId));
-            return {
-              id: filename,
-              external: false
-            };
-          }
-          // Normalize all other absolute paths as conflicting slashes will load twice
-          const filename = findFile(path.resolve(cwd, moduleId));
-          return {
-            id: filename,
-            external: false
           };
+          const node = resolve();
+          if (!node) return node;
+          if (!node.external && !fs.existsSync(findFile(node.id))) {
+            const attemptNodeModule = findFile(node.id.replace(basePath, `${basePath}node_modules/`));
+            if (!fs.existsSync(attemptNodeModule)) {
+              console.log(`Could not find ${node.id} should try ${attemptNodeModule}`);
+            }
+            node.id = attemptNodeModule;
+          }
+          return node;
         }
 
       };
@@ -256,8 +268,10 @@ module.exports = function(grunt) {
           }
           // Dynamically construct plugins.js with plugin dependencies
           code = `define([${pluginPaths.map(filename => {
+            const isCore = (filename.replace(convertSlashes, '/').includes(options.name));
+            if (isCore) return null;
             return `"${filename}"`;
-          }).join(',')}], function() {});`;
+          }).filter(Boolean).join(',')}], function() {});`;
           return code;
         }
 
@@ -276,9 +290,6 @@ module.exports = function(grunt) {
           minified: false,
           compact: false,
           comments: false,
-          exclude: [
-            '**/node_modules/**'
-          ],
           presets: [
             [
               '@babel/preset-env',
@@ -342,7 +353,7 @@ window.__AMD = function(id, value) {
       sourcemap: isSourceMapped,
       sourcemapPathTransform: (relativeSourcePath) => {
         // Rework sourcemap paths to overlay at the appropriate root
-        return relativeSourcePath.replace(convertSlashes, '/').replace('../' + options.baseUrl, '');
+        return relativeSourcePath.replace(convertSlashes, '/').replace('../' + options.baseUrl, options.baseUrl);
       },
       amd: {
         define: 'require'

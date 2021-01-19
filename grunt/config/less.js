@@ -51,13 +51,10 @@ module.exports = function(grunt, options) {
       options: {
         baseUrl: '<%= sourcedir %>',
         mandatory: [
-          '<%= sourcedir %>core/less/**/*.less'
+          '<%= sourcedir %>node_modules/*/less/**/*.less' // TODO: order, includes etc
         ],
         src: [
-          '<%= sourcedir %>components/**/*.less',
-          '<%= sourcedir %>extensions/**/*.less',
-          '<%= sourcedir %>menu/<%= menu %>/**/*.less',
-          '<%= sourcedir %>theme/<%= theme %>/**/*.less'
+          '<%= sourcedir %>node_modules/*/less/**/*.less' // TODO: order
         ],
         config: '<%= outputdir %>course/config.<%= jsonext %>',
         sourcemaps: true,
@@ -86,13 +83,10 @@ module.exports = function(grunt, options) {
       options: {
         baseUrl: '<%= sourcedir %>',
         mandatory: [
-          '<%= sourcedir %>core/less/**/*.less'
+          '<%= sourcedir %>node_modules/*/less/**/*.less' // TODO: order, includes etc
         ],
         src: [
-          '<%= sourcedir %>components/**/*.less',
-          '<%= sourcedir %>extensions/**/*.less',
-          '<%= sourcedir %>menu/<%= menu %>/**/*.less',
-          '<%= sourcedir %>theme/<%= theme %>/**/*.less'
+          '<%= sourcedir %>node_modules/*/less/**/*.less' // TODO: order
         ],
         config: '<%= outputdir %>course/config.<%= jsonext %>',
         sourcemaps: false,

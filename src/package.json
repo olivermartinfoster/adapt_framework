@@ -1,0 +1,28 @@
+{
+    "dependencies": {
+        "adapt-contrib-core": "git+https://github.com/olivermartinfoster/adapt-contrib-core.git",
+        "adapt-contrib-vanilla": "git+https://github.com/olivermartinfoster/adapt-contrib-vanilla.git",
+        "adapt-contrib-text": "git+https://github.com/olivermartinfoster/adapt-contrib-text.git",
+        "adapt-contrib-narrative": "git+https://github.com/olivermartinfoster/adapt-contrib-narrative.git",
+        "adapt-contrib-media": "git+https://github.com/olivermartinfoster/adapt-contrib-media.git",
+        "adapt-contrib-hotgraphic": "git+https://github.com/olivermartinfoster/adapt-contrib-hotgraphic.git",
+        "adapt-contrib-blank": "git+https://github.com/olivermartinfoster/adapt-contrib-blank.git",
+        "adapt-contrib-accordion": "git+https://github.com/olivermartinfoster/adapt-contrib-accordion.git",
+        "adapt-contrib-graphic": "git+https://github.com/olivermartinfoster/adapt-contrib-graphic.git",
+        "adapt-contrib-matching": "git+https://github.com/olivermartinfoster/adapt-contrib-matching.git",
+        "adapt-contrib-textInput": "git+https://github.com/olivermartinfoster/adapt-contrib-textInput.git",
+        "adapt-contrib-mcq": "git+https://github.com/olivermartinfoster/adapt-contrib-mcq.git",
+        "adapt-contrib-gmcq": "git+https://github.com/olivermartinfoster/adapt-contrib-gmcq.git",
+        "adapt-contrib-assessment": "git+https://github.com/olivermartinfoster/adapt-contrib-assessment.git",
+        "adapt-contrib-assessmentResults": "git+https://github.com/olivermartinfoster/adapt-contrib-assessmentResults.git",
+        "adapt-contrib-trickle": "git+https://github.com/olivermartinfoster/adapt-contrib-trickle.git",
+        "adapt-contrib-tutor": "git+https://github.com/olivermartinfoster/adapt-contrib-tutor.git",
+        "adapt-contrib-boxMenu": "git+https://github.com/olivermartinfoster/adapt-contrib-boxMenu.git",
+        "adapt-contrib-pageLevelProgress": "git+https://github.com/olivermartinfoster/adapt-contrib-pageLevelProgress.git",
+        "adapt-contrib-resources": "git+https://github.com/olivermartinfoster/adapt-contrib-resources.git",
+        "adapt-contrib-slider": "git+https://github.com/olivermartinfoster/adapt-contrib-slider.git",
+        "adapt-contrib-spoor": "git+https://github.com/olivermartinfoster/adapt-contrib-spoor.git",
+        "adapt-contrib-bookmarking": "git+https://github.com/olivermartinfoster/adapt-contrib-bookmarking.git",
+        "adapt-contrib-languagePicker": "git+https://github.com/olivermartinfoster/adapt-contrib-languagePicker.git"
+    }
+}

@@ -16,8 +16,8 @@ const Plugins = require('./Plugins');
 /**
  * Represents all of the schemas in a course.
  * @todo Work out how to do schema inheritance properly (i.e. component+accordion)
- * @todo Stop deriving schema types (model/extension) from bower and/or folder paths
- * @todo Stop deriving schema names from bower.json or filenames
+ * @todo Stop deriving schema types (model/extension) from package and/or folder paths
+ * @todo Stop deriving schema names from package.json or filenames
  * @todo Combining and applying multiple schemas for validation or defaults needs consideration
  */
 class Schemas {
@@ -66,7 +66,7 @@ class Schemas {
       const json = fs.readJSONSync(filePath);
       const isExtensionSchema = Boolean(json.properties.pluginLocations);
       const InferredSchemaClass = (isExtensionSchema ? ExtensionSchema : ModelSchema);
-      const inferredSchemaName = (plugin.name === 'core') ?
+      const inferredSchemaName = (!filePath.includes('/properties.schema')) ?
         path.parse(filePath).name.split('.')[0] : // if core, get schema name from file name
         isExtensionSchema ?
           plugin.name : // assume schema name is plugin name

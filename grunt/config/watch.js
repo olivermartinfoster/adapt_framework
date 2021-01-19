@@ -1,7 +1,7 @@
 // TODO excludes
 module.exports = {
-  bowerJson: {
-    files: ['<%= sourcedir %>*/*/bower.json'],
+  packageJson: {
+    files: ['<%= sourcedir %>*/*/package.json'],
     tasks: ['dev']
   },
   scripts: {
@@ -64,11 +64,11 @@ module.exports = {
     tasks: ['newer:copy:themeFonts']
   },
   libraries: {
-    files: ['<%= sourcedir %>core/libraries/**/*', '<%= sourcedir %>*/*/libraries/**/*'],
+    files: ['<%= sourcedir %>*/*/libraries/**/*'],
     tasks: ['newer:copy:libraries']
   },
   required: {
-    files: ['<%= sourcedir %>core/required/**/*', '<%= sourcedir %>*/*/required/**/*'],
+    files: ['<%= sourcedir %>*/*/required/**/*'],
     tasks: ['newer:copy:required']
   }
 };

@@ -8,6 +8,7 @@ module.exports = function(grunt, options) {
         cachePath: '<%= outputdir %>.cache',
         // fetch these bower plugins an add them as dependencies to the app.js
         plugins: [
+          '<%= sourcedir %>custom/*/package.json',
           '<%= sourcedir %>node_modules/*/package.json'
         ],
         pluginsPath: '<%= sourcedir %>/plugins.js',
@@ -46,7 +47,7 @@ module.exports = function(grunt, options) {
           'extensions/': '',
           'theme/': '',
           'menu/': '',
-          'core': 'node_modules/adapt-contrib-core'
+          'core': 'adapt-contrib-core'
         },
         generateSourceMaps: true
       },
@@ -65,6 +66,7 @@ module.exports = function(grunt, options) {
         cachePath: '<%= outputdir %>.cache',
         // fetch these bower plugins an add them as dependencies to the app.js
         plugins: [
+          '<%= sourcedir %>custom/*/package.json',
           '<%= sourcedir %>node_modules/*/package.json'
         ],
         pluginsPath: '<%= sourcedir %>/plugins.js',
@@ -103,7 +105,7 @@ module.exports = function(grunt, options) {
           'extensions/': '',
           'theme/': '',
           'menu/': '',
-          'core': 'node_modules/adapt-contrib-core'
+          'core': 'adapt-contrib-core'
         }
       }
     }

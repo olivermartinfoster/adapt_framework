@@ -9,6 +9,7 @@ module.exports = {
   output: {
     src: [
       '<%= outputdir %>/*',
+      '!<%= outputdir %>/course',
       '!<%= outputdir %>.cache'
     ]
   },

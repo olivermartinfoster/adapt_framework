@@ -89,6 +89,8 @@ module.exports = function(grunt) {
     var compilerOptions = options.compilerOptions || {};
     var filesCount = 0;
 
+    // TODO: do not import duplicate plugins which have been overriden in src/custom
+
     this.files.forEach(function(f) {
       var declarations = [];
       var partials = {};

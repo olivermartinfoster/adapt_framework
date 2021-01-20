@@ -145,6 +145,7 @@ module.exports = function(grunt) {
 
     // Collect all plugin entry points for injection
     const pluginPaths = [];
+    const pluginNames = {};
     for (let i = 0, l = options.plugins.length; i < l; i++) {
       const src = options.plugins[i];
       grunt.file.expand({
@@ -153,6 +154,8 @@ module.exports = function(grunt) {
         if (bowerJSONPath === undefined) return;
         const pluginPath = path.dirname(bowerJSONPath);
         const bowerJSON = grunt.file.readJSON(bowerJSONPath);
+        if (pluginNames[bowerJSON.name]) return;
+        pluginNames[bowerJSON.name] = true;
         const requireJSRootPath = pluginPath.substr(options.baseUrl.length);
         const requireJSMainPath = path.join(requireJSRootPath, bowerJSON.main);
         const ext = path.extname(requireJSMainPath);
@@ -240,11 +243,17 @@ module.exports = function(grunt) {
           const node = resolve();
           if (!node) return node;
           if (!node.external && !fs.existsSync(findFile(node.id))) {
-            const attemptNodeModule = findFile(node.id.replace(basePath, `${basePath}node_modules/`));
-            if (!fs.existsSync(attemptNodeModule)) {
-              console.log(`Could not find ${node.id} should try ${attemptNodeModule}`);
+            const attemptCustom = findFile(node.id.replace(basePath, `${basePath}custom/`));
+            const isInCustom = fs.existsSync(attemptCustom);
+            const attemptNodeModules = findFile(node.id.replace(basePath, `${basePath}node_modules/`));
+            const isInNodeModules = fs.existsSync(attemptNodeModules);
+            if (!isInCustom && !isInNodeModules) {
+              console.log(`Could not find ${node.id}`);
+            } else if (isInCustom) {
+              node.id = attemptCustom;
+            } else if (isInNodeModules) {
+              node.id = attemptNodeModules;
             }
-            node.id = attemptNodeModule;
           }
           return node;
         }

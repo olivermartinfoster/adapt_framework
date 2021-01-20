@@ -13,6 +13,8 @@ module.exports = function(grunt) {
 
     if (options.plugins) {
 
+      // TODO: do not run duplicate plugins which have been overriden in src/custom
+
       var paths = [];
       for (var i = 0, l = options.plugins.length; i < l; i++) {
         var src = options.plugins[i];

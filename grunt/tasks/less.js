@@ -49,6 +49,8 @@ module.exports = function(grunt) {
       imports += `\n@adapt-device-small: ${smallEmBreakpoint}em;\n`;
     }
 
+    // TODO: do not import duplicate plugins which have been overriden in src/custom
+
     if (options.mandatory) {
       for (let i = 0, l = options.mandatory.length; i < l; i++) {
         src = path.join(cwd, options.mandatory[i]);

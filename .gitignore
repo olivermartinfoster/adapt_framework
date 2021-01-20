@@ -1,5 +1,7 @@
 src/node_modules/
 src/plugins.js
+src/custom/*
+!src/custom/README.md
 build/*
 !build/course
 node_modules

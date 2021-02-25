@@ -334,7 +334,6 @@ module.exports = function(grunt) {
           compact: false,
           comments: true,
           retainLines: true,
-          allowAllFormats: true,
           presets: [
             [
               '@babel/preset-react',

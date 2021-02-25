@@ -10,13 +10,17 @@ module.exports = function(grunt) {
   const fs = require('fs-extra');
   const rollup = require('rollup');
   const { babel, getBabelOutputPlugin } = require('@rollup/plugin-babel');
+  const { nodeResolve } = require('@rollup/plugin-node-resolve');
+  const json = require('@rollup/plugin-json');
+  const commonjs = require('@rollup/plugin-commonjs');
+  const replace = require('@rollup/plugin-replace');
   const { deflate, unzip, constants } = require('zlib');
 
   const cwd = process.cwd().replace(convertSlashes, '/') + '/';
   const isDisableCache = process.argv.includes('--disable-cache');
   let cache;
 
-  const extensions = ['.js'];
+  const extensions = ['.js', '.jsx'];
 
   const restoreCache = async (cachePath, basePath) => {
     if (isDisableCache || cache || !fs.existsSync(cachePath)) return;
@@ -144,25 +148,37 @@ module.exports = function(grunt) {
     }
 
     // Collect all plugin entry points for injection
-    const pluginPaths = [];
-    const pluginNames = {};
+    const allPluginPaths = [];
+    const allPluginNamesIndex = {};
+    const includedPluginPaths = [];
     for (let i = 0, l = options.plugins.length; i < l; i++) {
       const src = options.plugins[i];
-      grunt.file.expand({
-        filter: options.pluginsFilter
-      }, src).forEach(function(bowerJSONPath) {
+      grunt.file.expand(src).forEach(function(bowerJSONPath) {
         if (bowerJSONPath === undefined) return;
         const pluginPath = path.dirname(bowerJSONPath);
         const bowerJSON = grunt.file.readJSON(bowerJSONPath);
-        if (pluginNames[bowerJSON.name]) return;
-        pluginNames[bowerJSON.name] = true;
+        if (!bowerJSON.keywords || !bowerJSON.keywords.includes('adapt-plugin')) return;
+        if (allPluginNamesIndex[bowerJSON.name]) return;
+        allPluginNamesIndex[bowerJSON.name] = true;
         const requireJSRootPath = pluginPath.substr(options.baseUrl.length);
         const requireJSMainPath = path.join(requireJSRootPath, bowerJSON.main);
         const ext = path.extname(requireJSMainPath);
         const requireJSMainPathNoExt = requireJSMainPath.slice(0, -ext.length).replace(convertSlashes, '/');
-        pluginPaths.push(requireJSMainPathNoExt);
+        allPluginPaths.push(requireJSMainPathNoExt);
+        if (!options.pluginsFilter(src)) return;
+        includedPluginPaths.push(requireJSMainPathNoExt);
       });
     }
+    const allPluginNames = Object.keys(allPluginNamesIndex);
+    const allPluginGlobs = allPluginNames.map(name => `**/${name}/**/*`);
+
+    // Collect react templates
+    const reactTemplatePaths = [];
+    options.reactTemplates.forEach(pattern => {
+      grunt.file.expand({
+        filter: options.pluginsFilter
+      }, pattern).forEach(templatePath => reactTemplatePaths.push(templatePath.replace(convertSlashes, '/')));
+    });
 
     // Process remapping and external model configurations
     const mapParts = Object.keys(options.map);
@@ -193,9 +209,11 @@ module.exports = function(grunt) {
               // Ignore as injected rollup module
               return null;
             }
+            // Drop any absolute front
+            moduleId = moduleId.startsWith(basePath) ? moduleId.slice(basePath.length) : moduleId;
+            // Remap module, usually coreJS/adapt to core/js/adapt etc
             const mapPart = mapParts.find(part => moduleId.startsWith(part));
             if (mapPart) {
-              // Remap module, usually coreJS/adapt to core/js/adapt etc
               moduleId = moduleId.replace(mapPart, options.map[mapPart]);
             }
             const isRelative = (moduleId[0] === '.');
@@ -253,6 +271,10 @@ module.exports = function(grunt) {
               node.id = attemptCustom;
             } else if (isInNodeModules) {
               node.id = attemptNodeModules;
+              if (fs.statSync(node.id).isDirectory()) {
+                // Assume this is a library node_module
+                return null;
+              }
             }
           }
           return node;
@@ -276,11 +298,11 @@ module.exports = function(grunt) {
             return null;
           }
           // Dynamically construct plugins.js with plugin dependencies
-          code = `define([${pluginPaths.map(filename => {
+          code = `${includedPluginPaths.concat(reactTemplatePaths).map(filename => {
             const isCore = (filename.replace(convertSlashes, '/').includes(options.name));
             if (isCore) return null;
-            return `"${filename}"`;
-          }).filter(Boolean).join(',')}], function() {});`;
+            return `import "${filename}";\n`;
+          }).join('')}`;
           return code;
         }
 
@@ -293,24 +315,35 @@ module.exports = function(grunt) {
       plugins: [
         adaptLoader({}),
         adaptInjectPlugins({}),
+        nodeResolve({
+          browser: true
+        }),
+        replace({
+          preventAssignment: true,
+          'process.env.NODE_ENV': JSON.stringify('production')
+        }),
+        commonjs({
+          include: ['**'],
+          exclude: allPluginGlobs
+        }),
+        json(),
         babel({
           babelHelpers: 'bundled',
           extensions,
           minified: false,
           compact: false,
-          comments: false,
+          comments: true,
+          retainLines: true,
+          allowAllFormats: true,
           presets: [
             [
-              '@babel/preset-env',
+              '@babel/preset-react',
               {
-                targets: {
-                  ie: '11'
-                },
-                exclude: [
-                  // Breaks lockingModel.js, set function vs set variable
-                  'transform-function-name'
-                ]
+                runtime: 'classic'
               }
+            ],
+            [
+              '@babel/preset-env'
             ]
           ],
           plugins: [
@@ -322,7 +355,21 @@ module.exports = function(grunt) {
                 ignoreNestedRequires: true,
                 defineFunctionName: '__AMD',
                 defineModuleId: (moduleId) => moduleId.replace(convertSlashes, '/').replace(basePath, '').replace('.js', ''),
-                excludes: []
+                includes: allPluginGlobs,
+                excludes: [
+                  '**/templates/**/*.jsx'
+                ]
+              }
+            ],
+            [
+              'transform-react-templates',
+              {
+                includes: [
+                  '**/templates/**/*.jsx'
+                ],
+                importRegisterFunctionFromModule: path.resolve(basePath, 'core/js/reactHelpers.js').replace(convertSlashes, '/'),
+                registerFunctionName: 'register',
+                registerTemplateName: (moduleId) => path.parse(moduleId).name
               }
             ]
           ]
@@ -334,9 +381,7 @@ module.exports = function(grunt) {
     const umdImport = () => {
       return umdImports.map(filename => {
         let code = fs.readFileSync(filename).toString();
-        code = code
-          .replace(`require("object-assign")`, 'Object.assign')
-          .replace(`define.amd`, 'define.noop');
+        code = code.replace(`define.amd`, 'define.noop');
         return code;
       }).join('\n');
     };
@@ -349,6 +394,14 @@ module.exports = function(grunt) {
           minified: true,
           compact: true,
           comments: false,
+          retainLines: false,
+          allowAllFormats: true
+        }),
+        isSourceMapped && getBabelOutputPlugin({
+          minified: false,
+          compact: false,
+          comments: true,
+          retainLines: true,
           allowAllFormats: true
         })
       ].filter(Boolean),

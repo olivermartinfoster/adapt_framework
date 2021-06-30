@@ -6,7 +6,7 @@ const env = Object.assign({}, process.env, {
 
 console.log(env.path)
 
-ChildProcess.execSync('git submodule update --init', {
+ChildProcess.execSync('git submodule update --remote', {
   env,
   stdio: 'inherit'
 });

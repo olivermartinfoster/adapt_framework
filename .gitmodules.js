@@ -4,9 +4,7 @@ const env = Object.assign({}, process.env, {
   Path: `${process.env.Path};${process.env.PROGRAMFILES}\\Git\\mingw64\\libexec\\git-core;`
 });
 
-console.log(env.path)
-
-ChildProcess.execSync('git submodule update --remote', {
+ChildProcess.execSync('git submodule update --init --remote', {
   env,
   stdio: 'inherit'
 });
